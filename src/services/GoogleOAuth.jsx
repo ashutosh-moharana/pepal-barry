@@ -1,5 +1,5 @@
 import { useGoogleLogin } from "@react-oauth/google";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import Button from "../components/common/Button";
@@ -7,8 +7,12 @@ import httpClient from "./httpClient";
 
 const GoogleOAuth = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { setUser, setToken } = useAuth();
   const [loading, setLoading] = useState(false);
+
+  const from = location.state?.from || "/";
+  const productState = location.state?.product ? { product: location.state.product } : {};
 
   const responseGoogle = async (tokenResponse) => {
     if (!tokenResponse?.code) {
@@ -29,7 +33,7 @@ const GoogleOAuth = () => {
         localStorage.setItem("user", JSON.stringify(user));
         setUser(user);
         setToken(token);
-        navigate("/");
+        navigate(from, { state: productState, replace: true });
       } else {
         console.error("Invalid response from server:", googleAuthRes.data);
       }

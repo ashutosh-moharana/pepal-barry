@@ -38,7 +38,9 @@ export default function ProductDetails() {
 
   const handleBuyNow = () => {
     if (!user) {
-      navigate("/login");
+      navigate("/login", {
+        state: { from: "/checkout/order-summary", product: { ...product, quantity } },
+      });
       return;
     }
     navigate("/checkout/order-summary", {

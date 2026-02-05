@@ -15,7 +15,9 @@ export default function Product() {
   const { isAuthenticated } = useAuth();
   const handleQuickBuy = (product) => {
     if (!isAuthenticated) {
-      navigate("/login");
+      navigate("/login", {
+        state: { from: "/checkout/order-summary", product: { ...product, quantity: 1 } },
+      });
       return;
     }
     navigate("/checkout/order-summary", {

@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import GoogleOAuth from "../services/GoogleOAuth";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
@@ -16,8 +16,12 @@ export default function Login() {
     formState: { errors },
   } = useForm();
   const navigate = useNavigate();
+  const location = useLocation();
   const { setUser, setToken } = useAuth();
   const [loading, setLoading] = useState(false);
+
+  const from = location.state?.from || "/";
+  const productState = location.state?.product ? { product: location.state.product } : {};
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -27,7 +31,7 @@ export default function Login() {
       localStorage.setItem("user", JSON.stringify(res.data.user));
       setUser(res.data.user);
       setToken(res.data.token);
-      navigate("/");
+      navigate(from, { state: productState, replace: true });
     } catch (err) {
       setError("server", {
         message: err.response?.data?.message || err.message,
