@@ -4,6 +4,7 @@ import { AuthContext } from "./AuthContext";
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -16,6 +17,7 @@ export const AuthProvider = ({ children }) => {
         console.warn("Failed to parse stored user", error);
       }
     }
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -40,7 +42,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, setUser, logout, token, setToken, isAuthenticated }}
+      value={{ user, setUser, logout, token, setToken, isAuthenticated, loading }}
     >
       {children}
     </AuthContext.Provider>
