@@ -6,8 +6,8 @@ import { useAuth } from "../context/AuthContext";
 
 const stats = [
   { label: "Sugar swaps", value: "0 Refined" },
-  { label: "Repeat buyers", value: "4K+" },
-  { label: "Delivery cities", value: "32" },
+  { label: "Repeat buyers", value: "1k+" },
+  { label: "Delivery cities", value: "15" },
 ];
 
 export default function Hero() {
@@ -36,7 +36,7 @@ export default function Hero() {
             </h1>
 
             <p className="text-lg md:text-xl text-subtle/90 max-w-lg mx-auto lg:mx-0 leading-relaxed">
-            Baked slow and with care, these cookies remind you that the best things in India were never rushed, overprocessed, or loud about it.
+              Baked slow and with care, these cookies remind you that the best things in India were never rushed, overprocessed, or loud about it.
             </p>
           </div>
 
@@ -82,7 +82,7 @@ export default function Hero() {
             />
 
             {/* Floating Tag */}
-            <div className="absolute -bottom-4 -left-4 md:bottom-8 md:-left-8 bg-white/90 backdrop-blur-md border border-white/60 p-4 pr-6 rounded-2xl shadow-xl flex items-center gap-3 animate-float">
+            <div className="absolute -bottom-4 -left-4 md:bottom-8 md:-left-8 bg-white/90 backdrop-blur-md border border-white/60 p-4 pr-6 rounded-2xl shadow-xl flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[#dbece2] flex items-center justify-center text-primary">
                 <PiStarFourFill className="text-lg" />
               </div>

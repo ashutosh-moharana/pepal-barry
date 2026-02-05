@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { FaInstagram, FaFacebookF } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
-
+import { useState } from "react";
+import axios from "axios";
 
 const socialLinks = [
   { id: "instagram", icon: FaInstagram, href: "https://www.instagram.com/pepalbarry/" },
@@ -10,6 +11,28 @@ const socialLinks = [
 
 export default function Footer() {
   const { user } = useAuth();
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const res = await axios.post(`${import.meta.env.VITE_SERVER_URL || "http://localhost:5000"}/api/newsletter`, { email });
+      setMessage(res.data.message);
+      setEmail("");
+    } catch (error) {
+      console.error(error);
+      setMessage(error.response?.data?.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const quickLinks = [
     { label: "Shop", href: "/shop" },
@@ -30,7 +53,7 @@ export default function Footer() {
             PEPAL BARRY
           </p>
           <h3 className="text-3xl sm:text-4xl font-display leading-[1.1] max-w-md">
-            Modern mithai jars, made functional.
+            Modern cookie jars, made functional.
           </h3>
           <p className="text-base text-background/60 leading-relaxed max-w-sm">
             Family-owned micro-bakery. We only ship what we’d send to our own dinner table.
@@ -86,23 +109,33 @@ export default function Footer() {
 
           <form
             className="group relative flex items-center"
-            onSubmit={(e) => e.preventDefault()}
+            onSubmit={handleSubscribe}
           >
             <input
               type="email"
               placeholder="Email address"
-              className="w-full bg-background/5 border border-background/10 rounded-full pl-5 pr-32 py-4 text-sm text-background placeholder:text-background/40 focus:outline-none focus:bg-background/10 focus:border-background/20 transition-all"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
+              className="w-full bg-background/5 border border-background/10 rounded-full pl-5 pr-32 py-4 text-sm text-background placeholder:text-background/40 focus:outline-none focus:bg-background/10 focus:border-background/20 transition-all disabled:opacity-50"
             />
             <button
               type="submit"
-              className="absolute right-1.5 top-1.5 bottom-1.5 bg-background text-foreground rounded-full px-6 text-xs sm:text-sm font-bold tracking-wide hover:bg-background/90 transition-colors whitespace-nowrap"
+              disabled={loading}
+              className="absolute right-1.5 top-1.5 bottom-1.5 bg-background text-foreground rounded-full px-6 text-xs sm:text-sm font-bold tracking-wide hover:bg-background/90 transition-colors whitespace-nowrap disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              Notify me
+              {loading ? "..." : "Notify me"}
             </button>
           </form>
-          <p className="text-[10px] text-background/40 uppercase tracking-wider">
-            No spam, just jars.
-          </p>
+          {message ? (
+            <p className="text-[10px] sm:text-xs mt-2 font-medium tracking-wide animate-pulse">
+              {message}
+            </p>
+          ) : (
+            <p className="text-[10px] text-background/40 uppercase tracking-wider mt-2">
+              No spam, just jars.
+            </p>
+          )}
         </div>
       </div>
 

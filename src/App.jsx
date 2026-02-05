@@ -1,6 +1,9 @@
+import { useState, useEffect } from "react";
+import Preloader from "./components/common/Preloader";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import ScrollToTop from "./components/common/ScrollToTop";
+import MoveToTop from "./components/common/MoveToTop";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import PageNotFound from "./pages/PageNotFound";
@@ -21,42 +24,52 @@ import Shop from "./pages/Shop";
 import AdminProducts from "./pages/admin/AdminProducts";
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
+
   return (
-    <AuthProvider>
-      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-        <BrowserRouter>
-          <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/shop" element={<Shop />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/product/:productId" element={<ProductDetails />} />
-            <Route
-              path="/orders"
-              element={<ProtectedRoute element={<OrderHistory />} />}
-            />
-            <Route
-              path="/profile"
-              element={<ProtectedRoute element={<Profile />} />}
-            />
-            <Route path="/checkout/*" element={<Checkout />} />
-            <Route path="/order-success" element={<OrderSuccess />} />
+    <>
+      {isLoading && <Preloader />}
+      <AuthProvider>
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+          <BrowserRouter>
+            <ScrollToTop />
+            <MoveToTop />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/product/:productId" element={<ProductDetails />} />
+              <Route
+                path="/orders"
+                element={<ProtectedRoute element={<OrderHistory />} />}
+              />
+              <Route
+                path="/profile"
+                element={<ProtectedRoute element={<Profile />} />}
+              />
+              <Route path="/checkout/*" element={<Checkout />} />
+              <Route path="/order-success" element={<OrderSuccess />} />
 
-            {/* Admin Routes */}
-            <Route path="/admin" element={<AdminRoute />}>
-              <Route element={<AdminLayout />}>
-                <Route index element={<Navigate to="orders" replace />} />
-                <Route path="orders" element={<AdminOrders />} />
-                <Route path="products" element={<AdminProducts />} />
+              {/* Admin Routes */}
+              <Route path="/admin" element={<AdminRoute />}>
+                <Route element={<AdminLayout />}>
+                  <Route index element={<Navigate to="orders" replace />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                  <Route path="products" element={<AdminProducts />} />
+                </Route>
               </Route>
-            </Route>
 
-            <Route path="*" element={<PageNotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </GoogleOAuthProvider>
-    </AuthProvider>
+              <Route path="*" element={<PageNotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </GoogleOAuthProvider>
+      </AuthProvider>
+    </>
   );
 }
 

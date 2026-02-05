@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCheckout } from "../../context/CheckoutProvider";
 import Button from "../common/Button";
@@ -29,12 +30,14 @@ export default function AddressForm() {
     navigate("/checkout/payment");
   };
 
+  useEffect(() => {
+    if (!product) {
+      navigate("/shop", { replace: true });
+    }
+  }, [product, navigate]);
+
   if (!product) {
-    return (
-      <div className="p-6 text-center text-subtle">
-        Preparing address form…
-      </div>
-    );
+    return null;
   }
 
   return (

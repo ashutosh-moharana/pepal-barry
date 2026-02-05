@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import logo from "/PEPAL_BARRY_LOGO.png";
@@ -14,6 +14,41 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const menuRef = useRef(null);
+
+  // Close menu on scroll and click outside
+  useEffect(() => {
+    const handleScroll = () => {
+      if (menuOpen) setMenuOpen(false);
+    };
+
+    const handleClickOutside = (event) => {
+      // If menu is open and click is valid (not on the toggle button itself, which is handled separately)
+      // Note: We might need a separate ref for the toggle button to be precise, 
+      // but usually clicking outside the menu container is enough.
+      if (menuOpen && menuRef.current && !menuRef.current.contains(event.target)) {
+        // We also check if the click target is NOT the toggle button (to avoid double toggle)
+        // A simple way is to check closest button with the toggle handler, but here we can just rely on the container check
+        // If the toggle button is outside the menu container (which it is), this will trigger close.
+        // We need to make sure the toggle button click doesn't immediately re-open it if we rely on this.
+        // Let's add a data attribute or class to the toggle button to exclude it, or just handle it simply.
+        if (!event.target.closest('button[aria-label="Toggle menu"]')) {
+          setMenuOpen(false);
+        }
+      }
+    };
+
+    if (menuOpen) {
+      window.addEventListener("scroll", handleScroll, { passive: true });
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuOpen]);
+
 
   const avatarSrc =
     user?.picture?.replace?.("s96-c", "s80-c") ||
@@ -29,7 +64,7 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-4 left-0 right-0 z-50 px-4">
-      <nav className="max-w-6xl mx-auto rounded-full border border-white/60 bg-white/80 backdrop-blur-2xl px-5 sm:px-8 py-3 flex items-center justify-between shadow-soft">
+      <nav className="max-w-6xl mx-auto rounded-full border border-white/60 bg-white/80 backdrop-blur-2xl px-5 sm:px-8 py-3 flex items-center justify-between shadow-soft relative z-50">
         <Link to="/" className="flex items-center gap-2">
           <img src={logo} alt="PEPAL BARRY" className="w-12 h-12 rounded-full object-cover" />
           <span className="inline text-lg font-semibold text-heading">
@@ -38,10 +73,11 @@ export default function Navbar() {
         </Link>
 
         <button
-          className="md:hidden text-2xl"
+          className="md:hidden text-2xl w-10 h-10 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors"
           onClick={() => setMenuOpen((prev) => !prev)}
+          aria-label="Toggle menu"
         >
-          ☰
+          {menuOpen ? "✕" : "☰"}
         </button>
 
         <ul className="hidden md:flex items-center gap-6 text-sm font-medium text-subtle">
@@ -112,13 +148,15 @@ export default function Navbar() {
                   Order history
                 </Link>
                 {user.role === "admin" && (
-                  <Link
-                    to="/admin"
-                    className="block px-4 py-3 hover:bg-muted border-t border-primary/10"
-                    onClick={() => setProfileMenuOpen(false)}
-                  >
-                    Admin Dashboard
-                  </Link>
+                  (
+                    <Link
+                      to="/admin"
+                      className="block px-4 py-3 hover:bg-muted border-t border-primary/10"
+                      onClick={() => setProfileMenuOpen(false)}
+                    >
+                      Admin Dashboard
+                    </Link>
+                  )
                 )}
                 <button
                   onClick={handleLogout}
@@ -143,15 +181,20 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {/* Mobile Menu */}
       <div
-        className={`md:hidden mt-3 rounded-3xl border border-primary/20 bg-white/95 backdrop-blur-xl shadow-soft px-5 py-4 space-y-4 ${menuOpen ? "block" : "hidden"}`}
+        ref={menuRef}
+        className={`md:hidden absolute top-20 left-4 right-4 rounded-3xl border border-primary/20 bg-white/95 backdrop-blur-xl shadow-soft px-5 py-4 space-y-4 transition-all duration-300 origin-top ease-in-out z-40 ${menuOpen
+          ? "opacity-100 translate-y-0 scale-100 visible"
+          : "opacity-0 -translate-y-4 scale-95 invisible"
+          }`}
       >
         <ul className="space-y-3 text-sm font-medium text-subtle">
           {links.map((link) => (
             <li key={link.label}>
               <Link
                 to={link.href}
-                className="block py-2"
+                className="block w-full text-center px-4 py-3 bg-gray-50 rounded-xl active:scale-95 transition-transform duration-100 text-heading font-semibold"
                 onClick={() => setMenuOpen(false)}
               >
                 {link.label}
@@ -163,7 +206,7 @@ export default function Navbar() {
               <li>
                 <Link
                   to="/orders"
-                  className="block py-2"
+                  className="block w-full text-center px-4 py-3 bg-gray-50 rounded-xl active:scale-95 transition-transform duration-100 text-heading font-semibold"
                   onClick={() => setMenuOpen(false)}
                 >
                   Orders
@@ -173,7 +216,7 @@ export default function Navbar() {
                 <li>
                   <Link
                     to="/admin"
-                    className="block py-2"
+                    className="block w-full text-center px-4 py-3 bg-gray-50 rounded-xl active:scale-95 transition-transform duration-100 text-heading font-semibold"
                     onClick={() => setMenuOpen(false)}
                   >
                     Admin

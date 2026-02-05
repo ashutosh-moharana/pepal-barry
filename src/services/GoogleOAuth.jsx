@@ -54,7 +54,6 @@ const GoogleOAuth = () => {
       variant="outline"
       className="w-full"
       onClick={() => {
-        setLoading(true);
         googleLogin();
       }}
       disabled={loading}

@@ -12,7 +12,7 @@ export default function BackButton({
   const location = useLocation();
 
   const handleBack = () => {
-   
+
     const shouldWarn = warnOnPaths.some((path) =>
       location.pathname.startsWith(path)
     );
@@ -24,7 +24,7 @@ export default function BackButton({
       return;
     }
 
-   
+
     if (useHistoryFirst && window.history.state && window.history.state.idx > 0) {
       navigate(-1);
     } else {
@@ -36,10 +36,10 @@ export default function BackButton({
     <button
       type="button"
       onClick={handleBack}
-      className={`fixed top-6 left-6 z-50 w-12 h-12 rounded-full bg-white/90 backdrop-blur-md border border-primary/10 shadow-soft flex items-center justify-center text-primary transition-all duration-300 hover:scale-110 active:scale-95 group ${className}`}
+      className={`fixed top-6 left-6 z-50 w-12 h-12 rounded-full bg-white/90 backdrop-blur-md border border-primary/10 shadow-soft flex items-center justify-center text-primary transition-all duration-300 active:scale-95 group ${className}`}
       aria-label="Go back"
     >
-      <PiArrowLeftBold className="text-xl group-hover:-translate-x-1 transition-transform duration-300" />
+      <PiArrowLeftBold className="text-xl transition-transform duration-300" />
     </button>
   );
 }

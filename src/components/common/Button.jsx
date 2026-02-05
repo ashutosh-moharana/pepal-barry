@@ -3,13 +3,13 @@ const baseStyles =
 
 const variants = {
   primary:
-    "bg-primary text-primary-foreground hover:-translate-y-0.5 hover:shadow-soft px-6 py-3",
+    "bg-primary text-primary-foreground active:scale-95 px-6 py-3",
   outline:
-    "border border-foreground/10 text-foreground hover:bg-foreground/5 px-6 py-3",
+    "border border-foreground/10 text-foreground active:bg-foreground/5 active:scale-95 px-6 py-3",
   ghost:
-    "text-foreground/70 hover:text-foreground hover:bg-foreground/5 px-4 py-2",
+    "text-foreground/70 active:text-foreground active:bg-foreground/5 active:scale-95 px-4 py-2",
   muted:
-    "bg-muted text-muted-foreground hover:bg-muted/80 px-5 py-3 rounded-2xl",
+    "bg-muted text-muted-foreground active:bg-muted/80 active:scale-95 px-5 py-3 rounded-2xl",
 };
 
 export default function Button({

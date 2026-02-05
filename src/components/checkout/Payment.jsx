@@ -60,6 +60,7 @@ export default function Payment() {
           address: savedAddress,
           paymentMethod: "cod",
         },
+        replace: true,
       });
 
       // Reset checkout after navigation to avoid "Preparing address form..." flash
@@ -164,30 +165,44 @@ export default function Payment() {
           Choose payment method
         </h2>
         <div className="space-y-3">
-          {["razorpay", "cod"].map((method) => (
-            <label
-              key={method}
-              className="flex items-center justify-between rounded-2xl border border-primary/15 bg-white px-4 py-3 cursor-pointer"
-            >
-              <div>
-                <p className="font-semibold text-heading capitalize">
-                  {method === "razorpay" ? "Razorpay" : "Cash on Delivery"}
-                </p>
-                <p className="text-xs text-subtle">
-                  {method === "razorpay"
-                    ? "Instant UPI / Card / Netbanking"
-                    : "Pay when the jar arrives"}
-                </p>
-              </div>
-              <input
-                type="radio"
-                name="payment"
-                value={method}
-                checked={paymentMethod === method}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              />
-            </label>
-          ))}
+          {["razorpay", "cod"].map((method) => {
+            const isCod = method === "cod";
+            return (
+              <label
+                key={method}
+                className={`flex items-center justify-between rounded-2xl border px-4 py-3 ${isCod
+                  ? "border-dashed border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed"
+                  : "border-primary/15 bg-white cursor-pointer"
+                  }`}
+              >
+                <div>
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-heading capitalize">
+                      {method === "razorpay" ? "Razorpay" : "Cash on Delivery"}
+                    </p>
+                    {isCod && (
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-red-500 bg-red-50 px-2 py-0.5 rounded-full border border-red-100">
+                        Unavailable
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-subtle">
+                    {method === "razorpay"
+                      ? "Instant UPI / Card / Netbanking"
+                      : "Temporarily disabled for development"}
+                  </p>
+                </div>
+                <input
+                  type="radio"
+                  name="payment"
+                  value={method}
+                  checked={paymentMethod === method}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  disabled={isCod}
+                />
+              </label>
+            );
+          })}
         </div>
       </div>
 
