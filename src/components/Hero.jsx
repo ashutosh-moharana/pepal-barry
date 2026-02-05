@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import heroImage from "/cookie.png";
+import heroImage from "/cookie.webp";
 import Button from "./common/Button";
 import { PiStarFourFill } from "react-icons/pi";
 import { useAuth } from "../context/AuthContext";

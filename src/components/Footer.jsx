@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { FaInstagram, FaFacebookF } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
-import axios from "axios";
+import httpClient from "../services/httpClient";
 
 const socialLinks = [
   { id: "instagram", icon: FaInstagram, href: "https://www.instagram.com/pepalbarry/" },
@@ -23,7 +23,7 @@ export default function Footer() {
     setMessage("");
 
     try {
-      const res = await axios.post(`${import.meta.env.VITE_SERVER_URL || "http://localhost:5000"}/api/newsletter`, { email });
+      const res = await httpClient.post("/api/newsletter", { email });
       setMessage(res.data.message);
       setEmail("");
     } catch (error) {
