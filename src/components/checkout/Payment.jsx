@@ -170,9 +170,11 @@ export default function Payment() {
             return (
               <label
                 key={method}
-                className={`flex items-center justify-between rounded-2xl border px-4 py-3 ${isCod
+                className={`flex items-center justify-between rounded-2xl border px-4 py-4 transition-all ${isCod
                   ? "border-dashed border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed"
-                  : "border-primary/15 bg-white cursor-pointer"
+                  : paymentMethod === method
+                    ? "border-primary bg-primary/5 ring-1 ring-primary"
+                    : "border-primary/15 bg-white cursor-pointer hover:border-primary/30"
                   }`}
               >
                 <div>
@@ -229,11 +231,11 @@ export default function Payment() {
         </div>
       )}
 
-      <div className="flex justify-between">
-        <Button variant="outline" onClick={() => navigate("/checkout/address")}>
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between pt-4">
+        <Button variant="outline" className="w-full sm:w-auto" onClick={() => navigate("/checkout/address")}>
           Back
         </Button>
-        <Button onClick={handlePayment} disabled={loading}>
+        <Button className="w-full sm:w-auto" onClick={handlePayment} disabled={loading}>
           {loading
             ? "Processing..."
             : paymentMethod === "cod"

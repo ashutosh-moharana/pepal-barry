@@ -23,47 +23,58 @@ import AdminOrders from "./pages/admin/AdminOrders";
 import Shop from "./pages/Shop";
 import AdminProducts from "./pages/admin/AdminProducts";
 
+import { useAuth } from "./context/AuthContext";
+
+function AppContent() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return <Preloader message="Welcome to Pepal Barry. Where every jar feels homemade." />;
+  }
+
+  return (
+    <BrowserRouter>
+      <ScrollToTop />
+      <MoveToTop />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/shop" element={<Shop />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/product/:productId" element={<ProductDetails />} />
+        <Route
+          path="/orders"
+          element={<ProtectedRoute element={<OrderHistory />} />}
+        />
+        <Route
+          path="/profile"
+          element={<ProtectedRoute element={<Profile />} />}
+        />
+        <Route path="/checkout/*" element={<Checkout />} />
+        <Route path="/order-success" element={<OrderSuccess />} />
+
+        {/* Admin Routes */}
+        <Route path="/admin" element={<AdminRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route index element={<Navigate to="orders" replace />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="products" element={<AdminProducts />} />
+          </Route>
+        </Route>
+
+        <Route path="*" element={<PageNotFound />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
 function App() {
   return (
-    <>
-
-      <AuthProvider>
-        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-          <BrowserRouter>
-            <ScrollToTop />
-            <MoveToTop />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/shop" element={<Shop />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/product/:productId" element={<ProductDetails />} />
-              <Route
-                path="/orders"
-                element={<ProtectedRoute element={<OrderHistory />} />}
-              />
-              <Route
-                path="/profile"
-                element={<ProtectedRoute element={<Profile />} />}
-              />
-              <Route path="/checkout/*" element={<Checkout />} />
-              <Route path="/order-success" element={<OrderSuccess />} />
-
-              {/* Admin Routes */}
-              <Route path="/admin" element={<AdminRoute />}>
-                <Route element={<AdminLayout />}>
-                  <Route index element={<Navigate to="orders" replace />} />
-                  <Route path="orders" element={<AdminOrders />} />
-                  <Route path="products" element={<AdminProducts />} />
-                </Route>
-              </Route>
-
-              <Route path="*" element={<PageNotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </GoogleOAuthProvider>
-      </AuthProvider>
-    </>
+    <AuthProvider>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <AppContent />
+      </GoogleOAuthProvider>
+    </AuthProvider>
   );
 }
 

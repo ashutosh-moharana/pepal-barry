@@ -33,9 +33,11 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-background px-5 py-24 flex items-center justify-center">
-      <BackButton />
-      <Card className="w-full max-w-md p-8 space-y-6">
+    <div className="min-h-screen bg-background px-4 pt-20 pb-10 sm:px-5 sm:py-24 flex flex-col sm:items-center sm:justify-center relative">
+      <div className="w-full max-w-md mb-6 sm:absolute sm:top-10 sm:left-10 sm:mb-0">
+        <BackButton />
+      </div>
+      <Card className="w-full max-w-md p-6 sm:p-8 space-y-6 border-none sm:border-solid shadow-none sm:shadow-sm bg-transparent sm:bg-white">
         <div className="text-center space-y-2">
           <p className="text-sm uppercase tracking-[0.3em] text-subtle">
             Join the pantry club

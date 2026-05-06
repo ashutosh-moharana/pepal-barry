@@ -73,13 +73,13 @@ export default function ProductDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-background px-5 md:px-16 py-16 md:py-24">
+    <div className="min-h-screen bg-background pb-24 sm:pb-10 pt-16 px-4 md:px-16 sm:py-20 md:py-24">
       <div className="max-w-5xl mx-auto">
         <div className="mb-8 md:mb-10">
           <BackButton />
         </div>
         <div className="grid gap-10 lg:gap-16 lg:grid-cols-2 items-center">
-          <div className="relative aspect-square w-full md:w-4/5 mx-auto lg:w-full overflow-hidden rounded-[2rem] border border-primary/10 group">
+          <div className="relative aspect-square w-full max-w-[220px] sm:max-w-sm md:max-w-md mx-auto lg:max-w-none lg:w-full overflow-hidden rounded-[2rem] border border-primary/10 group">
             <img
               src={
                 product.images?.[0] ||
@@ -98,21 +98,21 @@ export default function ProductDetails() {
             )}
           </div>
 
-          <div className="space-y-8 lg:space-y-10">
-            <div className="space-y-4">
+          <div className="space-y-6 lg:space-y-10">
+            <div className="space-y-2 sm:space-y-4">
               <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary/70">
                 Jar #{productId?.slice(-2)}
               </p>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-semibold text-heading leading-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-display font-semibold text-heading leading-tight break-words">
                 {product.name}
               </h1>
-              <p className="text-lg md:text-xl text-subtle leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-subtle leading-relaxed">
                 {product.description}
               </p>
             </div>
 
             <div className="flex items-baseline gap-6">
-              <span className="text-4xl md:text-5xl font-display font-semibold text-heading">
+              <span className="text-2xl sm:text-3xl md:text-5xl font-display font-semibold text-heading">
                 ₹{product.price}
               </span>
               <span className="text-sm font-medium text-subtle uppercase tracking-wider">
@@ -124,37 +124,66 @@ export default function ProductDetails() {
               </span>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-              <div className="inline-flex items-center gap-6 rounded-full border border-primary/20 px-6 py-3 bg-card/50">
+            {/* Desktop Action Area - Hidden on small mobile */}
+            <div className="hidden sm:flex flex-col sm:flex-row items-stretch sm:items-center gap-6">
+              <div className="flex items-center gap-4 bg-muted/50 rounded-full p-1 border border-primary/10">
                 <button
-                  className="text-2xl text-heading hover:text-primary transition-colors focus:outline-none"
+                  className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-all active:scale-90 shadow-sm"
                   onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
                   aria-label="Decrease quantity"
                 >
-                  −
+                  <span className="text-xl font-medium">−</span>
                 </button>
-                <span className="text-2xl font-display font-semibold w-8 text-center">{quantity}</span>
+                <span className="text-xl font-display font-semibold w-6 text-center">{quantity}</span>
                 <button
-                  className="text-2xl text-heading hover:text-primary transition-colors focus:outline-none"
+                  className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-all active:scale-90 shadow-sm"
                   onClick={() => setQuantity((prev) => prev + 1)}
                   aria-label="Increase quantity"
                 >
-                  +
+                  <span className="text-xl font-medium">+</span>
                 </button>
               </div>
-            </div>
 
-            <div className="pt-4">
-              <Button
-                className="w-full sm:w-auto px-10 py-3 text-lg"
-                onClick={handleBuyNow}
-                disabled={Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK}
-              >
-                {Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK ? "Sold Out" : "Buy now"}
-              </Button>
+              <div className="pt-0">
+                <Button
+                  className="px-8 py-3 text-lg"
+                  onClick={handleBuyNow}
+                  disabled={Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK}
+                >
+                  {Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK ? "Sold Out" : "Buy now"}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Mobile Sticky Action Bar */}
+      <div className="fixed sm:hidden bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-md border-t border-primary/10 flex items-center justify-between gap-4 z-40">
+        <div className="flex items-center gap-4 bg-muted/50 rounded-full p-1 border border-primary/10">
+          <button
+            className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-all shadow-sm"
+            onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+            aria-label="Decrease quantity"
+          >
+            <span className="text-xl font-medium">−</span>
+          </button>
+          <span className="text-lg font-display font-semibold w-4 text-center">{quantity}</span>
+          <button
+            className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-all shadow-sm"
+            onClick={() => setQuantity((prev) => prev + 1)}
+            aria-label="Increase quantity"
+          >
+            <span className="text-xl font-medium">+</span>
+          </button>
+        </div>
+        <Button
+          className="flex-1 py-3.5 text-lg shadow-lg"
+          onClick={handleBuyNow}
+          disabled={Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK}
+        >
+          {Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK ? "Sold Out" : "Buy now"}
+        </Button>
       </div>
     </div>
   );

@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import httpClient from "../../services/httpClient";
 import { useAuth } from "../../context/AuthContext";
 import Button from "../../components/common/Button";
 import PageLoader from "../../components/common/PageLoader";
+import Input from "../../components/common/Input";
 import { useForm } from "react-hook-form";
 
 export default function AdminProducts() {
@@ -17,14 +18,12 @@ export default function AdminProducts() {
         register,
         handleSubmit,
         reset,
-        formState: { isSubmitting },
+        formState: { isSubmitting, errors },
     } = useForm();
 
     const fetchProducts = async () => {
         try {
-            const { data } = await axios.get(
-                `${import.meta.env.VITE_API_URL}/api/products`
-            );
+            const { data } = await httpClient.get("/api/products");
             if (data.success) {
                 setProducts(data.products);
             }
@@ -57,20 +56,19 @@ export default function AdminProducts() {
         try {
             const config = {
                 headers: {
-                    Authorization: `Bearer ${token}`,
                     "Content-Type": "multipart/form-data",
                 },
             };
 
             if (editingProduct) {
-                await axios.put(
-                    `${import.meta.env.VITE_API_URL}/api/products/${editingProduct._id}`,
+                await httpClient.put(
+                    `/api/products/${editingProduct._id}`,
                     formData,
                     config
                 );
             } else {
-                await axios.post(
-                    `${import.meta.env.VITE_API_URL}/api/products`,
+                await httpClient.post(
+                    "/api/products",
                     formData,
                     config
                 );
@@ -88,12 +86,7 @@ export default function AdminProducts() {
         if (!window.confirm("Are you sure you want to delete this product?")) return;
         try {
             setDeletingId(id);
-            await axios.delete(
-                `${import.meta.env.VITE_API_URL}/api/products/${id}`,
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
+            await httpClient.delete(`/api/products/${id}`);
             fetchProducts();
         } catch (error) {
             console.error("Failed to delete product", error);
@@ -199,58 +192,50 @@ export default function AdminProducts() {
                             {editingProduct ? "Edit Product" : "Add Product"}
                         </h2>
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-subtle mb-1">
-                                    Name
-                                </label>
-                                <input
-                                    type="text"
-                                    className="w-full rounded-xl border border-primary/20 px-4 py-2"
-                                    {...register("name", { required: true })}
-                                />
-                            </div>
+                            <Input
+                                label="Product Name"
+                                type="text"
+                                placeholder="e.g. Classic Jar"
+                                error={errors.name?.message}
+                                {...register("name", { required: "Name is required" })}
+                            />
+
                             <div>
                                 <label className="block text-sm font-medium text-subtle mb-1">
                                     Description
                                 </label>
                                 <textarea
-                                    className="w-full rounded-xl border border-primary/20 px-4 py-2"
-                                    rows="3"
+                                    className="w-full rounded-2xl border border-primary/15 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                    rows="4"
+                                    placeholder="Describe your product..."
                                     {...register("description")}
                                 />
                             </div>
+
                             <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-subtle mb-1">
-                                        Price
-                                    </label>
-                                    <input
-                                        type="number"
-                                        className="w-full rounded-xl border border-primary/20 px-4 py-2"
-                                        {...register("price", { required: true })}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-subtle mb-1">
-                                        Stock
-                                    </label>
-                                    <input
-                                        type="number"
-                                        className="w-full rounded-xl border border-primary/20 px-4 py-2"
-                                        {...register("stock", { required: true })}
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-subtle mb-1">
-                                    Category
-                                </label>
-                                <input
-                                    type="text"
-                                    className="w-full rounded-xl border border-primary/20 px-4 py-2"
-                                    {...register("category")}
+                                <Input
+                                    label="Price (₹)"
+                                    type="number"
+                                    placeholder="0"
+                                    error={errors.price?.message}
+                                    {...register("price", { required: "Price is required" })}
+                                />
+                                <Input
+                                    label="Stock"
+                                    type="number"
+                                    placeholder="0"
+                                    error={errors.stock?.message}
+                                    {...register("stock", { required: "Stock is required" })}
                                 />
                             </div>
+
+                            <Input
+                                label="Category"
+                                type="text"
+                                placeholder="General"
+                                error={errors.category?.message}
+                                {...register("category")}
+                            />
                             <div>
                                 <label className="block text-sm font-medium text-subtle mb-1">
                                     Images {editingProduct && "(Leave empty to keep existing)"}
