@@ -18,7 +18,7 @@ function CheckoutGuard({ children }) {
 export default function Checkout() {
     return (
         <CheckoutProvider>
-            <div className="min-h-screen bg-background px-4 py-24 flex justify-center">
+            <div className="min-h-screen bg-background px-4 pt-20 pb-10 sm:py-24 flex justify-center">
                 <div className="w-full max-w-3xl space-y-6">
                     <BackButton />
                     <Card className="p-4 md:p-8">

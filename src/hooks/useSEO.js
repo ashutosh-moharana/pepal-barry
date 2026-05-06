@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 
-export function useSEO({ title, description }) {
+export function useSEO({ title, description, absolute = false }) {
   useEffect(() => {
     if (title) {
-      document.title = `${title} | Pepal Barry`;
+      document.title = absolute ? title : `${title} | Pepal Barry`;
     }
 
     if (description) {

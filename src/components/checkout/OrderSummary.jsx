@@ -28,7 +28,7 @@ export default function OrderSummary() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row gap-6">
+      <div className="flex flex-row items-center md:items-start gap-4 sm:gap-6 bg-card rounded-3xl p-4 sm:p-0 border border-primary/5 sm:border-none">
         <img
           src={
             product.images?.[0] ||
@@ -36,22 +36,30 @@ export default function OrderSummary() {
             "https://placehold.co/600x600?text=No+Image"
           }
           alt={product.name}
-          className="w-full md:w-1/3 rounded-3xl bg-muted object-cover"
+          className="w-24 h-24 sm:w-32 sm:h-32 md:w-1/3 md:h-auto md:max-w-[240px] aspect-square rounded-2xl sm:rounded-3xl bg-muted object-cover shrink-0"
         />
-        <div className="flex-1 space-y-4">
-          <h2 className="text-3xl font-semibold text-heading">{product.name}</h2>
-          <p className="text-subtle">{product.description}</p>
-          <div className="flex items-center gap-4">
-            <div className="text-2xl font-semibold text-heading">
+        <div className="flex-1 space-y-2 sm:space-y-4 text-left w-full">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-heading leading-tight">{product.name}</h2>
+          <p className="text-subtle text-xs sm:text-sm md:text-base line-clamp-2">{product.description}</p>
+          <div className="flex flex-row items-center justify-between sm:justify-start gap-4 pt-1 sm:pt-0">
+            <div className="text-lg sm:text-xl md:text-2xl font-semibold text-heading">
               ₹{price.toFixed(2)}
             </div>
-            <div className="inline-flex items-center gap-4 rounded-full border border-primary/20 px-4 py-2">
-              <button type="button" onClick={() => updateQuantity(-1)}>
-                −
+            <div className="flex items-center gap-3 bg-muted/50 rounded-full p-1 border border-primary/10">
+              <button
+                type="button"
+                onClick={() => updateQuantity(-1)}
+                className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-all shadow-sm"
+              >
+                <span className="text-lg font-medium">−</span>
               </button>
-              <span className="text-lg font-semibold">{quantity}</span>
-              <button type="button" onClick={() => updateQuantity(1)}>
-                +
+              <span className="text-base sm:text-lg font-semibold w-4 text-center">{quantity}</span>
+              <button
+                type="button"
+                onClick={() => updateQuantity(1)}
+                className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-all shadow-sm"
+              >
+                <span className="text-lg font-medium">+</span>
               </button>
             </div>
           </div>
@@ -75,8 +83,8 @@ export default function OrderSummary() {
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <Button onClick={() => navigate("/checkout/address")}>Deliver to…</Button>
+      <div className="flex flex-col sm:flex-row justify-end pt-2">
+        <Button className="w-full sm:w-auto" onClick={() => navigate("/checkout/address")}>Deliver to…</Button>
       </div>
     </div>
   );

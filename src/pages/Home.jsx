@@ -7,7 +7,8 @@ import { useSEO } from "../hooks/useSEO";
 
 export default function Home() {
   useSEO({
-    title: "Artisanal Jars",
+    title: "Pepal Barry",
+    absolute: true,
     description: "Handcrafted functional treats made with minimal ingredients and maximal nourishment.",
   });
 
