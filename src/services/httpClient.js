@@ -5,15 +5,16 @@ const httpClient = axios.create({
   withCredentials: true,
 });
 
-httpClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+httpClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      if (!error.config.url.includes("/api/auth/me") && !error.config.url.includes("/api/auth/logout")) {
+        window.dispatchEvent(new Event("auth:unauthorized"));
+      }
     }
-    return config;
-  },
-  (error) => Promise.reject(error)
+    return Promise.reject(error);
+  }
 );
 
 export default httpClient;

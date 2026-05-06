@@ -6,6 +6,7 @@ import { useState } from "react";
 import BackButton from "../components/common/BackButton";
 import Button from "../components/common/Button";
 import Card from "../components/common/Card";
+import Input from "../components/common/Input";
 import httpClient from "../services/httpClient";
 
 export default function Login() {
@@ -27,10 +28,9 @@ export default function Login() {
     setLoading(true);
     try {
       const res = await httpClient.post("/api/auth/login", data);
-      localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
       setUser(res.data.user);
-      setToken(res.data.token);
+      setToken("cookie_token");
       navigate(from, { state: productState, replace: true });
     } catch (err) {
       setError("server", {
@@ -55,35 +55,21 @@ export default function Login() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <label className="block text-sm text-subtle space-y-2">
-            Email
-            <input
-              type="email"
-              placeholder="you@email.com"
-              className="w-full rounded-2xl border border-primary/15 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/30"
-              {...register("email", { required: "Email is required" })}
-            />
-            {errors.email && (
-              <span className="text-sm text-red-500">
-                {errors.email.message}
-              </span>
-            )}
-          </label>
+          <Input
+            label="Email"
+            type="email"
+            placeholder="you@email.com"
+            error={errors.email?.message}
+            {...register("email", { required: "Email is required" })}
+          />
 
-          <label className="block text-sm text-subtle space-y-2">
-            Password
-            <input
-              type="password"
-              placeholder="••••••••"
-              className="w-full rounded-2xl border border-primary/15 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/30"
-              {...register("password", { required: "Password is required" })}
-            />
-            {errors.password && (
-              <span className="text-sm text-red-500">
-                {errors.password.message}
-              </span>
-            )}
-          </label>
+          <Input
+            label="Password"
+            type="password"
+            placeholder="••••••••"
+            error={errors.password?.message}
+            {...register("password", { required: "Password is required" })}
+          />
 
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Logging in..." : "Login"}

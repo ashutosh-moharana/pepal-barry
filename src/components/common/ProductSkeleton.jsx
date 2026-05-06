@@ -1,14 +1,18 @@
 
 export default function ProductSkeleton() {
-    return (
-        <article className="flex flex-col gap-6 p-6 md:p-8 bg-card rounded-[2.5rem] border border-primary/10 animate-pulse">
-            <div className="w-full aspect-square rounded-[2rem] bg-muted" />
-            <div className="space-y-4 flex flex-col items-center">
-                <div className="h-4 bg-muted rounded-full w-24" />
-                <div className="h-8 bg-muted rounded-full w-3/4" />
-                <div className="h-16 bg-muted rounded-2xl w-full" />
-                <div className="h-10 bg-muted rounded-full w-32" />
-            </div>
-        </article>
-    );
+  return (
+    <article className="relative aspect-square overflow-hidden rounded-3xl border border-primary/10 bg-card animate-pulse">
+      <div className="absolute inset-0 bg-muted" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-background/20 to-transparent" />
+
+      <div className="absolute left-4 top-4 h-6 w-20 rounded-full bg-background/60" />
+
+      <div className="absolute inset-x-0 bottom-0 p-4">
+        <div className="flex items-end justify-between gap-4">
+          <div className="h-5 w-2/3 rounded-full bg-background/60" />
+          <div className="h-5 w-14 rounded-full bg-background/60" />
+        </div>
+      </div>
+    </article>
+  );
 }

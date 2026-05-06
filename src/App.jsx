@@ -24,15 +24,9 @@ import Shop from "./pages/Shop";
 import AdminProducts from "./pages/admin/AdminProducts";
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
-
   return (
     <>
-      {isLoading && <Preloader />}
+
       <AuthProvider>
         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
           <BrowserRouter>

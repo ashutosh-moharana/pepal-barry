@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCheckout } from "../../context/CheckoutProvider";
+import { useCheckout } from "../../context/CheckoutContext";
 import Button from "../common/Button";
 import { useForm } from "react-hook-form";
 
@@ -131,7 +131,7 @@ export default function AddressForm() {
   );
 }
 
-function InputField({ label, error, type = "text", className, ...props }) {
+function InputField({ label, error, type = "text", ...props }) {
   return (
     <label className="text-sm font-medium text-subtle block space-y-2">
       <span className="flex items-center gap-1">

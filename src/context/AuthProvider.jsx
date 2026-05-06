@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
+import httpClient from "../services/httpClient";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -7,35 +8,58 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
-    if (storedToken && storedUser) {
-      setToken(storedToken);
+    const checkAuth = async () => {
       try {
-        setUser(JSON.parse(storedUser));
+        const res = await httpClient.get("/api/auth/me");
+        if (res.data.success && res.data.user) {
+          setUser(res.data.user);
+          setToken("cookie_token"); // Keep isAuthenticated truthy
+          localStorage.setItem("user", JSON.stringify(res.data.user));
+        } else {
+          setUser(null);
+          setToken(null);
+          localStorage.removeItem("user");
+        }
       } catch (error) {
-        console.warn("Failed to parse stored user", error);
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem("user");
+      } finally {
+        setLoading(false);
       }
-    }
-    setLoading(false);
+    };
+    checkAuth();
   }, []);
 
   useEffect(() => {
     const handler = (event) => {
-      if (event.key === "token" && !event.newValue) {
+      if (event.key === "user" && !event.newValue) {
         setUser(null);
         setToken(null);
       }
     };
+    const handleUnauthorized = () => {
+      localStorage.removeItem("user");
+      setToken(null);
+      setUser(null);
+    };
     window.addEventListener("storage", handler);
-    return () => window.removeEventListener("storage", handler);
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+    return () => {
+      window.removeEventListener("storage", handler);
+      window.removeEventListener("auth:unauthorized", handleUnauthorized);
+    };
   }, []);
 
-  const logout = () => {
-    localStorage.removeItem("token");
+  const logout = async () => {
     localStorage.removeItem("user");
     setToken(null);
     setUser(null);
+    try {
+      await httpClient.post("/api/auth/logout");
+    } catch (err) {
+      console.error("Logout error", err);
+    }
   };
 
   const isAuthenticated = Boolean(user && token);

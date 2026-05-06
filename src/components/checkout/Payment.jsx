@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCheckout } from "../../context/CheckoutProvider";
+import { useCheckout } from "../../context/CheckoutContext";
 import { useAuth } from "../../context/AuthContext";
 import Button from "../common/Button";
 import {

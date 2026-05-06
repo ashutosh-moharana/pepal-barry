@@ -1,30 +1,13 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { getProducts } from "../services/products";
-import Button from "./common/Button";
 import SectionHeading from "./common/SectionHeading";
-import Card from "./common/Card";
-import { useAuth } from "../context/AuthContext";
 import ProductSkeleton from "./common/ProductSkeleton";
 
 export default function Product() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
-  const handleQuickBuy = (product) => {
-    if (!isAuthenticated) {
-      navigate("/login", {
-        state: { from: "/checkout/order-summary", product: { ...product, quantity: 1 } },
-      });
-      return;
-    }
-    navigate("/checkout/order-summary", {
-      state: { product: { ...product, quantity: 1 } },
-    });
-  };
-
 
   useEffect(() => {
     async function loadProducts() {
@@ -66,7 +49,7 @@ export default function Product() {
         description="Small-batch indulgence. We've mastered these two recipes to perfection."
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8">
         {loading &&
           Array.from({ length: 2 }).map((_, index) => (
             <ProductSkeleton key={index} />
@@ -82,57 +65,43 @@ export default function Product() {
 
         {!loading &&
           products.slice(0, 2).map((product, index) => (
-            <article
+            <Link
               key={product._id || product.name}
-              className="flex flex-col gap-6 p-6 md:p-8 bg-card rounded-[2.5rem] border border-primary/10 shadow-sm hover:shadow-md transition-shadow group"
+              to={`/product/${product._id}`}
+              className="group flex flex-col overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border border-primary/10 bg-card transition-transform duration-300 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
             >
-              <div className="w-full aspect-square rounded-[2rem] bg-muted/30 flex items-center justify-center overflow-hidden relative">
-                <div className="absolute inset-0 bg-primary/5 rounded-[2rem] transform rotate-3 group-hover:rotate-0 transition-transform duration-500" />
+              <div className="relative aspect-square w-full overflow-hidden border-b border-primary/5">
                 <img
-                  src={product.images?.[0] || product.image}
+                  src={
+                    product.images?.[0] ||
+                    product.image ||
+                    "https://placehold.co/1000x1000?text=Product+Image"
+                  }
                   alt={product.name}
-                  className="w-3/4 object-contain drop-shadow-2xl z-10 transform group-hover:scale-105 transition-transform duration-500"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
                 />
-              </div>
 
-              <div className="space-y-4 text-center">
-                <div className="space-y-2">
-                  <p className="text-xs uppercase tracking-widest text-primary/70 font-bold">
-                    Batch No. 00{index + 1}
-                  </p>
-                  <h3 className="text-3xl font-display font-medium text-heading">
-                    {product.name}
-                  </h3>
+                <div className="absolute left-5 top-5 inline-flex items-center rounded-full bg-background/90 px-4 py-1.5 text-xs font-semibold tracking-widest text-heading backdrop-blur-md">
+                  JAR #{String(index + 1).padStart(2, "0")}
                 </div>
 
-                <p className="text-subtle line-clamp-3 px-4">
-                  {product.description}
-                </p>
-
-                <div className="flex flex-col items-center gap-4 pt-2">
-                  <p className="text-2xl font-semibold text-heading">
-                    ₹{product.price}
-                  </p>
-
-                  <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                    <Button
-                      className="flex-1 sm:flex-none"
-                      onClick={() => navigate(`/product/${product._id}`)}
-                    >
-                      View Details
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="flex-1 sm:flex-none"
-                      onClick={() => handleQuickBuy(product)}
-                      disabled={Number(product.stock ?? 0) <= 0}
-                    >
-                      {Number(product.stock ?? 0) <= 0 ? "Sold Out" : "Quick Buy"}
-                    </Button>
+                {Number(product.stock ?? 0) <= 0 && (
+                  <div className="absolute right-5 top-5 inline-flex items-center rounded-full bg-background/90 px-4 py-1.5 text-xs font-semibold text-heading backdrop-blur-md">
+                    Sold out
                   </div>
-                </div>
+                )}
               </div>
-            </article>
+
+              <div className="p-6 md:p-8 flex flex-col gap-2">
+                <h3 className="text-xl md:text-2xl font-display font-semibold text-heading leading-snug line-clamp-2">
+                  {product.name}
+                </h3>
+                <p className="shrink-0 text-lg md:text-xl font-semibold text-heading">
+                  ₹{product.price}
+                </p>
+              </div>
+            </Link>
           ))}
       </div>
     </section>
