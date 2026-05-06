@@ -6,6 +6,8 @@ import Button from "../components/common/Button";
 import Card from "../components/common/Card";
 import BackButton from "../components/common/BackButton";
 import PageLoader from "../components/common/PageLoader";
+import { INVENTORY_THRESHOLDS } from "../utils/constants";
+import { useSEO } from "../hooks/useSEO";
 
 export default function ProductDetails() {
   const { productId } = useParams();
@@ -16,6 +18,11 @@ export default function ProductDetails() {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  useSEO({
+    title: product ? product.name : "Product Details",
+    description: product ? product.description : "View details of our premium product.",
+  });
 
   useEffect(() => {
     async function fetchProduct() {
@@ -55,8 +62,8 @@ export default function ProductDetails() {
   if (error || !product) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-5">
-        <Card className="p-10 text-center max-w-lg">
-          <h2 className="text-2xl font-semibold text-heading mb-3">
+        <Card className="p-10 text-center max-w-lg border border-primary/10">
+          <h2 className="text-2xl font-display font-semibold text-heading mb-3">
             {error || "Product not found"}
           </h2>
           <Button onClick={() => navigate("/#products")}>Back to shop</Button>
@@ -66,74 +73,86 @@ export default function ProductDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-background px-5 md:px-16 py-24">
-      <BackButton />
-      <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-2 items-start">
-        <Card className="p-6 md:p-10 bg-card/90 border border-primary/15">
-          <div className="aspect-square rounded-[36px] bg-primary/5 flex items-center justify-center">
+    <div className="min-h-screen bg-background px-5 md:px-16 py-16 md:py-24">
+      <div className="max-w-5xl mx-auto">
+        <div className="mb-8 md:mb-10">
+          <BackButton />
+        </div>
+        <div className="grid gap-10 lg:gap-16 lg:grid-cols-2 items-center">
+          <div className="relative aspect-square w-full md:w-4/5 mx-auto lg:w-full overflow-hidden rounded-[2rem] border border-primary/10 group">
             <img
               src={
                 product.images?.[0] ||
                 product.image ||
-                "https://placehold.co/600x600?text=No+Image"
+                "https://placehold.co/1000x1000?text=Product+Image"
               }
               alt={product.name}
-              className="w-4/5 object-contain drop-shadow-2xl"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
-          </div>
-        </Card>
-
-        <div className="space-y-6">
-          <p className="text-sm uppercase tracking-[0.4em] text-primary/70">
-            Jar #{productId?.slice(-2)}
-          </p>
-          <h1 className="text-4xl md:text-5xl font-semibold text-heading">
-            {product.name}
-          </h1>
-          <p className="text-lg text-subtle">{product.description}</p>
-
-          <div className="flex items-center gap-6">
-            <span className="text-3xl font-semibold text-heading">
-              ₹{product.price}
-            </span>
-            <span className="text-sm text-subtle">
-              {Number(product.stock ?? 0) <= 0
-                ? "Out of stock"
-                : Number(product.stock ?? 0) > 6
-                  ? "Ready to ship"
-                  : `Only ${product.stock} jars left`}
-            </span>
+            {Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK && (
+              <div className="absolute inset-0 bg-background/40 flex items-center justify-center backdrop-blur-sm">
+                <span className="bg-background/90 text-heading px-6 py-2 rounded-full text-lg font-medium">
+                  Sold Out
+                </span>
+              </div>
+            )}
           </div>
 
-          <div className="flex items-center gap-6">
-            <label className="text-sm font-medium text-subtle">Quantity</label>
-            <div className="inline-flex items-center gap-6 rounded-full border border-primary/20 px-5 py-2.5">
-              <button
-                className="text-2xl"
-                onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                aria-label="Decrease quantity"
-              >
-                −
-              </button>
-              <span className="text-2xl font-semibold">{quantity}</span>
-              <button
-                className="text-2xl"
-                onClick={() => setQuantity((prev) => prev + 1)}
-                aria-label="Increase quantity"
-              >
-                +
-              </button>
+          <div className="space-y-8 lg:space-y-10">
+            <div className="space-y-4">
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-primary/70">
+                Jar #{productId?.slice(-2)}
+              </p>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-semibold text-heading leading-tight">
+                {product.name}
+              </h1>
+              <p className="text-lg md:text-xl text-subtle leading-relaxed">
+                {product.description}
+              </p>
             </div>
-          </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              className="flex-1"
-              onClick={handleBuyNow}
-              disabled={Number(product.stock ?? 0) <= 0}
-            >
-              {Number(product.stock ?? 0) <= 0 ? "Sold Out" : "Buy now"}
-            </Button>
+            <div className="flex items-baseline gap-6">
+              <span className="text-4xl md:text-5xl font-display font-semibold text-heading">
+                ₹{product.price}
+              </span>
+              <span className="text-sm font-medium text-subtle uppercase tracking-wider">
+                {Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK
+                  ? "Out of stock"
+                  : Number(product.stock ?? 0) > INVENTORY_THRESHOLDS.LOW_STOCK_WARNING
+                    ? "Ready to ship"
+                    : `Only ${product.stock} jars left`}
+              </span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+              <div className="inline-flex items-center gap-6 rounded-full border border-primary/20 px-6 py-3 bg-card/50">
+                <button
+                  className="text-2xl text-heading hover:text-primary transition-colors focus:outline-none"
+                  onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                  aria-label="Decrease quantity"
+                >
+                  −
+                </button>
+                <span className="text-2xl font-display font-semibold w-8 text-center">{quantity}</span>
+                <button
+                  className="text-2xl text-heading hover:text-primary transition-colors focus:outline-none"
+                  onClick={() => setQuantity((prev) => prev + 1)}
+                  aria-label="Increase quantity"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <div className="pt-4">
+              <Button
+                className="w-full sm:w-auto px-10 py-3 text-lg"
+                onClick={handleBuyNow}
+                disabled={Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK}
+              >
+                {Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK ? "Sold Out" : "Buy now"}
+              </Button>
+            </div>
           </div>
         </div>
       </div>

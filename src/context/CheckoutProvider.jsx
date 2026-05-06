@@ -1,15 +1,6 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
-
-const CheckoutContext = createContext();
-
-export function useCheckout() {
-  const context = useContext(CheckoutContext);
-  if (context === undefined) {
-    throw new Error("useCheckout must be used within CheckoutProvider");
-  }
-  return context;
-}
+import { CheckoutContext } from "./CheckoutContext";
 
 const STORAGE_KEY = "pepalbarry-checkout";
 

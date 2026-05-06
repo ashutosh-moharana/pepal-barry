@@ -1,0 +1,4 @@
+export const INVENTORY_THRESHOLDS = {
+  OUT_OF_STOCK: 0,
+  LOW_STOCK_WARNING: 6,
+};

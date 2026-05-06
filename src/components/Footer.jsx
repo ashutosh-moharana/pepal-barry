@@ -59,18 +59,21 @@ export default function Footer() {
             Family-owned micro-bakery. We only ship what we’d send to our own dinner table.
           </p>
           <div className="flex gap-4 pt-4">
-            {socialLinks.map(({ id, icon: Icon, href }) => (
-              <a
-                key={id}
-                href={href}
-                target="_blank"
-                rel="noreferrer"
-                className="w-10 h-10 rounded-full border border-background/20 flex items-center justify-center transition-all duration-300 hover:scale-110"
-                aria-label={`Follow us on ${id}`}
-              >
-                <Icon className="text-lg size-6" />
-              </a>
-            ))}
+            {socialLinks.map((link) => {
+              const Icon = link.icon;
+              return (
+                <a
+                  key={link.id}
+                  href={link.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-10 h-10 rounded-full border border-background/20 flex items-center justify-center transition-all duration-300 hover:scale-110"
+                  aria-label={`Follow us on ${link.id}`}
+                >
+                  <Icon className="text-lg size-6" />
+                </a>
+              );
+            })}
           </div>
         </div>
 

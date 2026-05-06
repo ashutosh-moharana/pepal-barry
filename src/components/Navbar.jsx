@@ -15,30 +15,27 @@ export default function Navbar() {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const menuRef = useRef(null);
+  const profileMenuRef = useRef(null);
 
   // Close menu on scroll and click outside
   useEffect(() => {
     const handleScroll = () => {
       if (menuOpen) setMenuOpen(false);
+      if (profileMenuOpen) setProfileMenuOpen(false);
     };
 
     const handleClickOutside = (event) => {
-      // If menu is open and click is valid (not on the toggle button itself, which is handled separately)
-      // Note: We might need a separate ref for the toggle button to be precise, 
-      // but usually clicking outside the menu container is enough.
       if (menuOpen && menuRef.current && !menuRef.current.contains(event.target)) {
-        // We also check if the click target is NOT the toggle button (to avoid double toggle)
-        // A simple way is to check closest button with the toggle handler, but here we can just rely on the container check
-        // If the toggle button is outside the menu container (which it is), this will trigger close.
-        // We need to make sure the toggle button click doesn't immediately re-open it if we rely on this.
-        // Let's add a data attribute or class to the toggle button to exclude it, or just handle it simply.
         if (!event.target.closest('button[aria-label="Toggle menu"]')) {
           setMenuOpen(false);
         }
       }
+      if (profileMenuOpen && profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+        setProfileMenuOpen(false);
+      }
     };
 
-    if (menuOpen) {
+    if (menuOpen || profileMenuOpen) {
       window.addEventListener("scroll", handleScroll, { passive: true });
       document.addEventListener("mousedown", handleClickOutside);
     }
@@ -47,7 +44,7 @@ export default function Navbar() {
       window.removeEventListener("scroll", handleScroll);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [menuOpen]);
+  }, [menuOpen, profileMenuOpen]);
 
 
   const avatarSrc =
@@ -95,13 +92,6 @@ export default function Navbar() {
                   Orders
                 </Link>
               </li>
-              {user.role === "admin" && (
-                <li>
-                  <Link className="hover:text-heading transition" to="/admin">
-                    Admin
-                  </Link>
-                </li>
-              )}
             </>
           )}
         </ul>
@@ -109,15 +99,8 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-3">
           {user ? (
             <div
+              ref={profileMenuRef}
               className="relative"
-              onMouseEnter={() => setProfileMenuOpen(true)}
-              onMouseLeave={() => setProfileMenuOpen(false)}
-              onFocus={() => setProfileMenuOpen(true)}
-              onBlur={(event) => {
-                if (!event.currentTarget.contains(event.relatedTarget)) {
-                  setProfileMenuOpen(false);
-                }
-              }}
             >
               <button
                 className="w-11 h-11 rounded-full border-2 border-primary overflow-hidden"
@@ -212,17 +195,6 @@ export default function Navbar() {
                   Orders
                 </Link>
               </li>
-              {user.role === "admin" && (
-                <li>
-                  <Link
-                    to="/admin"
-                    className="block w-full text-center px-4 py-3 bg-gray-50 rounded-xl active:scale-95 transition-transform duration-100 text-heading font-semibold"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Admin
-                  </Link>
-                </li>
-              )}
             </>
           )}
         </ul>
@@ -234,6 +206,13 @@ export default function Navbar() {
                   Profile
                 </Button>
               </Link>
+              {user.role === "admin" && (
+                <Link to="/admin" onClick={() => setMenuOpen(false)}>
+                  <Button variant="outline" className="w-full">
+                    Admin Dashboard
+                  </Button>
+                </Link>
+              )}
               <Button className="w-full" onClick={handleLogout}>
                 Logout
               </Button>

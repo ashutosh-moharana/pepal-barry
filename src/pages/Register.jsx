@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import BackButton from "../components/common/BackButton";
 import Button from "../components/common/Button";
 import Card from "../components/common/Card";
+import Input from "../components/common/Input";
 import httpClient from "../services/httpClient";
 import { useState } from "react";
 
@@ -22,10 +23,9 @@ export default function Register() {
     setServerError(null);
     try {
       const res = await httpClient.post("/api/auth/register", data);
-      localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
       setUser(res.data.user);
-      setToken(res.data.token);
+      setToken("cookie_token");
       navigate("/");
     } catch (err) {
       setServerError(err.response?.data?.message || "Failed to register.");
@@ -88,13 +88,4 @@ export default function Register() {
   );
 }
 
-const Input = ({ label, error, ...props }) => (
-  <label className="block text-sm text-subtle space-y-2">
-    {label}
-    <input
-      className="w-full rounded-2xl border border-primary/15 bg-white px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/30"
-      {...props}
-    />
-    {error && <span className="text-sm text-red-500">{error}</span>}
-  </label>
-);
+

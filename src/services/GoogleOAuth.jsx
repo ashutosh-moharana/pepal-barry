@@ -26,13 +26,11 @@ const GoogleOAuth = () => {
         code: tokenResponse.code,
       });
 
-      const { token, user } = googleAuthRes.data || {};
-
-      if (token && user) {
-        localStorage.setItem("token", token);
+      const { user } = googleAuthRes.data || {};
+      if (user) {
         localStorage.setItem("user", JSON.stringify(user));
         setUser(user);
-        setToken(token);
+        setToken("cookie_token");
         navigate(from, { state: productState, replace: true });
       } else {
         console.error("Invalid response from server:", googleAuthRes.data);
@@ -70,7 +68,7 @@ const GoogleOAuth = () => {
             className="w-5 h-5"
           />
         )}
-        {loading ? "Connecting..." : "Continue with Google"}
+        {loading ? "Waking up server..." : "Continue with Google"}
       </div>
     </Button>
   );

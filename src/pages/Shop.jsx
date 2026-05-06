@@ -4,8 +4,15 @@ import { getProducts } from "../services/products";
 import Button from "../components/common/Button";
 import BackButton from "../components/common/BackButton";
 import ProductSkeleton from "../components/common/ProductSkeleton";
+import { INVENTORY_THRESHOLDS } from "../utils/constants";
+import { useSEO } from "../hooks/useSEO";
 
 export default function Shop() {
+    useSEO({
+        title: "Shop Collection",
+        description: "Browse our entire collection of handcrafted functional treats.",
+    });
+
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -37,45 +44,46 @@ export default function Shop() {
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8 max-w-6xl mx-auto">
                 {loading
-                    ? Array.from({ length: 6 }).map((_, index) => (
+                    ? Array.from({ length: 8 }).map((_, index) => (
                         <ProductSkeleton key={index} />
                     ))
                     : products.map((product) => (
                         <Link
                             key={product._id}
                             to={`/product/${product._id}`}
-                            className="group block"
+                            className="group block flex flex-col h-full"
                         >
-                            <div className="relative rounded-3xl overflow-hidden bg-muted mb-4 h-64 flex items-center justify-center">
+                            <div className="relative aspect-square rounded-[1.5rem] overflow-hidden border border-primary/10 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
                                 <img
                                     src={
                                         product.images?.[0] ||
                                         product.image ||
-                                        "https://placehold.co/600x600?text=No+Image"
+                                        "https://placehold.co/1000x1000?text=Product+Image"
                                     }
                                     alt={product.name}
-                                    className="object-contain max-h-full max-w-full p-4 group-hover:scale-105 transition duration-500"
+                                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                    loading="lazy"
                                 />
-                                {product.stock <= 0 && (
-                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                        <span className="bg-white text-heading px-3 py-1 rounded-full text-sm font-medium">
+                                {product.stock <= INVENTORY_THRESHOLDS.OUT_OF_STOCK && (
+                                    <div className="absolute inset-0 bg-background/40 flex items-center justify-center backdrop-blur-sm">
+                                        <span className="bg-background/90 text-heading px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide">
                                             Sold Out
                                         </span>
                                     </div>
                                 )}
                             </div>
-                            <div className="space-y-1">
-                                <div className="flex justify-between items-start">
-                                    <h3 className="text-xl font-semibold text-heading group-hover:text-primary transition">
+                            <div className="space-y-2 flex-1 flex flex-col">
+                                <div className="flex flex-col gap-1">
+                                    <h3 className="text-lg font-display font-semibold text-heading group-hover:text-primary transition-colors line-clamp-2">
                                         {product.name}
                                     </h3>
-                                    <span className="text-lg font-medium text-heading">
+                                    <span className="text-base font-semibold text-heading shrink-0">
                                         ₹{product.price}
                                     </span>
                                 </div>
-                                <p className="text-subtle line-clamp-2">{product.description}</p>
+                                <p className="text-sm text-subtle line-clamp-2 mt-auto leading-relaxed">{product.description}</p>
                             </div>
                         </Link>
                     ))}
