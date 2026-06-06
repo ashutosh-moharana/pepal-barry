@@ -8,15 +8,21 @@ export default function AdminOrders() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
-    useEffect(() => {
-        fetchOrders();
-    }, []);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [searchInput, setSearchInput] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
+    const [paymentFilter, setPaymentFilter] = useState("");
+    const [updatingOrderIds, setUpdatingOrderIds] = useState(new Set());
+    const [toastMessage, setToastMessage] = useState(null);
 
     const fetchOrders = async () => {
         try {
-            const res = await httpClient.get("/api/orders/all");
+            setLoading(true);
+            const res = await httpClient.get(`/api/orders/all?page=${page}&limit=10&q=${searchQuery}&status=${statusFilter}&paymentStatus=${paymentFilter}`);
             setOrders(res.data.orders);
+            setTotalPages(res.data.totalPages || 1);
         } catch (err) {
             console.error("Failed to fetch orders", err);
             setError("Failed to load orders");
@@ -25,29 +31,34 @@ export default function AdminOrders() {
         }
     };
 
+    useEffect(() => {
+        fetchOrders();
+    }, [page, searchQuery, statusFilter, paymentFilter]);
+
     const handleStatusUpdate = async (orderId, deliveryStatus, paymentStatus) => {
         try {
+            setUpdatingOrderIds((prev) => new Set(prev).add(orderId));
             const payload = {};
             if (deliveryStatus) payload.status = deliveryStatus;
             if (paymentStatus) payload.paymentStatus = paymentStatus;
 
             await httpClient.put(`/api/orders/${orderId}/status`, payload);
+            
+            setToastMessage({ type: 'success', text: `Order #${orderId.slice(-6)} updated successfully` });
+            setTimeout(() => setToastMessage(null), 3000);
 
-            setOrders((prev) =>
-                prev.map((order) => {
-                    if (order._id === orderId) {
-                        return {
-                            ...order,
-                            ...(deliveryStatus && { deliveryStatus }),
-                            ...(paymentStatus && { paymentStatus }),
-                        };
-                    }
-                    return order;
-                })
-            );
+            // Re-fetch to ensure fresh derived/populated state
+            fetchOrders();
         } catch (err) {
             console.error("Failed to update status", err);
-            alert("Failed to update status");
+            setToastMessage({ type: 'error', text: "Failed to update order status" });
+            setTimeout(() => setToastMessage(null), 3000);
+        } finally {
+            setUpdatingOrderIds((prev) => {
+                const newSet = new Set(prev);
+                newSet.delete(orderId);
+                return newSet;
+            });
         }
     };
 
@@ -55,10 +66,50 @@ export default function AdminOrders() {
     if (error) return <div className="p-10 text-center text-red-500">{error}</div>;
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 relative">
+            {toastMessage && (
+                <div className={`fixed bottom-4 right-4 md:bottom-10 md:right-10 z-50 px-5 py-3 rounded-2xl shadow-xl border ${toastMessage.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'} flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4`}>
+                    <span className="font-medium text-sm">{toastMessage.text}</span>
+                </div>
+            )}
             <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-semibold text-heading">Orders</h2>
                 <span className="text-sm text-subtle">{orders.length} total orders</span>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-4 mb-2">
+                <form onSubmit={(e) => { e.preventDefault(); setSearchQuery(searchInput); setPage(1); }} className="flex flex-col sm:flex-row gap-2 flex-1">
+                    <input
+                        type="text"
+                        placeholder="Search order ID..."
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                        className="w-full sm:max-w-sm rounded-xl border border-primary/15 bg-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                    <button type="submit" className="bg-primary text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary/90 w-full sm:w-auto">Search</button>
+                </form>
+                <div className="flex flex-col sm:flex-row gap-2">
+                    <select 
+                        value={paymentFilter} 
+                        onChange={(e) => { setPaymentFilter(e.target.value); setPage(1); }}
+                        className="w-full sm:w-auto rounded-xl border border-primary/15 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    >
+                        <option value="">All Payments</option>
+                        <option value="paid">Paid</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                    <select 
+                        value={statusFilter} 
+                        onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                        className="w-full sm:w-auto rounded-xl border border-primary/15 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    >
+                        <option value="">All Statuses</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
             </div>
 
             <div className="grid gap-4">
@@ -72,11 +123,12 @@ export default function AdminOrders() {
                                     {new Date(order.createdAt).toLocaleTimeString()}
                                 </p>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto mt-2 md:mt-0">
                                 <select
                                     value={order.paymentStatus}
                                     onChange={(e) => handleStatusUpdate(order._id, null, e.target.value)}
-                                    className={`text-sm border rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary/20 ${order.paymentStatus === "paid"
+                                    disabled={updatingOrderIds.has(order._id)}
+                                    className={`w-full sm:w-auto text-sm border rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed ${order.paymentStatus === "paid"
                                         ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                                         : "bg-amber-50 text-amber-700 border-amber-200"
                                         }`}
@@ -90,7 +142,8 @@ export default function AdminOrders() {
                                 <select
                                     value={order.deliveryStatus}
                                     onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
-                                    className="text-sm border border-primary/20 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                    disabled={updatingOrderIds.has(order._id)}
+                                    className="w-full sm:w-auto text-sm border border-primary/20 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {["Processing", "Shipped", "Delivered", "Cancelled"].map((status) => (
                                         <option key={status} value={status}>
@@ -98,6 +151,9 @@ export default function AdminOrders() {
                                         </option>
                                     ))}
                                 </select>
+                                {updatingOrderIds.has(order._id) && (
+                                    <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                                )}
                             </div>
                         </div>
 
@@ -107,7 +163,7 @@ export default function AdminOrders() {
                                     <span className="text-heading">
                                         {item.productId?.name || "Unknown Product"} <span className="text-subtle">x{item.quantity}</span>
                                     </span>
-                                    <span>₹{item.productId?.price * item.quantity}</span>
+                                    <span>₹{(item.productId?.price || item.priceAtPurchase || 0) * item.quantity}</span>
                                 </div>
                             ))}
                         </div>
@@ -133,7 +189,10 @@ export default function AdminOrders() {
                             <div className="text-right">
                                 <p className="font-medium text-heading mb-1">Total</p>
                                 <p className="text-lg font-semibold text-primary">₹{order.totalAmount}</p>
-                                <p className="text-xs">{order.mode}</p>
+                                <p className="text-xs mb-2">{order.mode}</p>
+                                <a href={`#/admin/orders/${order._id}`} className="text-sm font-medium text-primary hover:underline">
+                                    View Details
+                                </a>
                             </div>
                         </div>
                     </Card>
@@ -144,6 +203,24 @@ export default function AdminOrders() {
                         No orders found.
                     </div>
                 )}
+            </div>
+
+            <div className="flex justify-between items-center mt-4">
+                <button 
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="px-4 py-2 border rounded-xl disabled:opacity-50 text-sm font-medium hover:bg-muted"
+                >
+                    Previous
+                </button>
+                <span className="text-subtle text-sm">Page {page} of {totalPages}</span>
+                <button 
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                    className="px-4 py-2 border rounded-xl disabled:opacity-50 text-sm font-medium hover:bg-muted"
+                >
+                    Next
+                </button>
             </div>
         </div>
     );

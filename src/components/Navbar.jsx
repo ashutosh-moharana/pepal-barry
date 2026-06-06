@@ -131,15 +131,13 @@ export default function Navbar() {
                   Order history
                 </Link>
                 {user.role === "admin" && (
-                  (
-                    <Link
-                      to="/admin"
-                      className="block px-4 py-3 hover:bg-muted border-t border-primary/10"
-                      onClick={() => setProfileMenuOpen(false)}
-                    >
-                      Admin Dashboard
-                    </Link>
-                  )
+                  <Link
+                    to="/admin"
+                    className="block px-4 py-3 hover:bg-muted border-t border-primary/10"
+                    onClick={() => setProfileMenuOpen(false)}
+                  >
+                    Admin
+                  </Link>
                 )}
                 <button
                   onClick={handleLogout}
@@ -207,9 +205,9 @@ export default function Navbar() {
                 </Button>
               </Link>
               {user.role === "admin" && (
-                <Link to="/admin" onClick={() => setMenuOpen(false)}>
+                <Link to="/admin" onClick={() => setMenuOpen(false)} className="w-full">
                   <Button variant="outline" className="w-full">
-                    Admin Dashboard
+                    Admin
                   </Button>
                 </Link>
               )}

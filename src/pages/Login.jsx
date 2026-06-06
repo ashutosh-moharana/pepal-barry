@@ -32,7 +32,8 @@ export default function Login() {
         _id: res.data.user._id,
         name: res.data.user.name,
         email: res.data.user.email,
-        picture: res.data.user.picture
+        picture: res.data.user.picture,
+        role: res.data.user.role
       };
       localStorage.setItem("user", JSON.stringify(safeUser));
       setUser(safeUser);
