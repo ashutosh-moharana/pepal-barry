@@ -25,6 +25,12 @@ import AdminProducts from "./pages/admin/AdminProducts";
 
 import { useAuth } from "./context/AuthContext";
 
+import Terms from "./pages/policies/Terms";
+import Privacy from "./pages/policies/Privacy";
+import Refunds from "./pages/policies/Refunds";
+import Shipping from "./pages/policies/Shipping";
+import Contact from "./pages/policies/Contact";
+
 function AppContent() {
   const { loading } = useAuth();
 
@@ -61,6 +67,13 @@ function AppContent() {
             <Route path="products" element={<AdminProducts />} />
           </Route>
         </Route>
+
+        {/* Policy Routes */}
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/refunds" element={<Refunds />} />
+        <Route path="/shipping" element={<Shipping />} />
+        <Route path="/contact" element={<Contact />} />
 
         <Route path="*" element={<PageNotFound />} />
       </Routes>

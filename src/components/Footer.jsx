@@ -5,7 +5,7 @@ import { useState } from "react";
 import httpClient from "../services/httpClient";
 
 const socialLinks = [
-  { id: "instagram", icon: FaInstagram, href: "https://www.instagram.com/pepalbarry/" },
+  { id: "instagram", icon: FaInstagram, href: "https://www.instagram.com/pepalbarry.shop/" },
   { id: "facebook", icon: FaFacebookF, href: "https://www.facebook.com/pepalbarry/" },
 ];
 
@@ -46,7 +46,7 @@ export default function Footer() {
 
   return (
     <footer className="mt-24 bg-foreground text-background">
-      <div className="max-w-7xl mx-auto px-6 py-20 grid gap-16 lg:grid-cols-[1.5fr_1fr_1.5fr]">
+      <div className="max-w-7xl mx-auto px-6 py-20 grid gap-16 lg:grid-cols-[1.5fr_1fr_1fr_1.5fr]">
         {/* Brand Column */}
         <div className="space-y-6">
           <p className="text-xs uppercase tracking-[0.3em] text-background font-bold">
@@ -100,6 +100,18 @@ export default function Footer() {
                 )}
               </li>
             ))}
+          </ul>
+        </div>
+
+        {/* Policies */}
+        <div>
+          <h4 className="text-lg font-semibold mb-6">Policies</h4>
+          <ul className="space-y-4 text-background/60">
+            <li><Link to="/terms" className="hover:text-background transition-colors duration-300">Terms & Conditions</Link></li>
+            <li><Link to="/privacy" className="hover:text-background transition-colors duration-300">Privacy Policy</Link></li>
+            <li><Link to="/refunds" className="hover:text-background transition-colors duration-300">Refund Policy</Link></li>
+            <li><Link to="/shipping" className="hover:text-background transition-colors duration-300">Shipping Policy</Link></li>
+            <li><Link to="/contact" className="hover:text-background transition-colors duration-300">Contact Us</Link></li>
           </ul>
         </div>
 
