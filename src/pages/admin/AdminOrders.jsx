@@ -190,9 +190,9 @@ export default function AdminOrders() {
                                 <p className="font-medium text-heading mb-1">Total</p>
                                 <p className="text-lg font-semibold text-primary">₹{order.totalAmount}</p>
                                 <p className="text-xs mb-2">{order.mode}</p>
-                                <a href={`#/admin/orders/${order._id}`} className="text-sm font-medium text-primary hover:underline">
-                                    View Details
-                                </a>
+                                <p className="text-xs text-subtle font-mono break-all" title={order._id}>
+                                    ID: {order._id}
+                                </p>
                             </div>
                         </div>
                     </Card>

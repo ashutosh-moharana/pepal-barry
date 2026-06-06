@@ -6,6 +6,7 @@ import BackButton from "../components/common/BackButton";
 import ProductSkeleton from "../components/common/ProductSkeleton";
 import { INVENTORY_THRESHOLDS } from "../utils/constants";
 import { useSEO } from "../hooks/useSEO";
+import { getEffectivePrice, getDiscountLabel } from "../utils/pricing";
 
 export default function Shop() {
     useSEO({
@@ -49,13 +50,19 @@ export default function Shop() {
                     ? Array.from({ length: 8 }).map((_, index) => (
                         <ProductSkeleton key={index} />
                     ))
-                    : products.map((product) => (
+                    : products.map((product) => {
+                        const isOutOfStock = product.stock <= INVENTORY_THRESHOLDS.OUT_OF_STOCK;
+                        return (
                         <Link
                             key={product._id}
                             to={`/product/${product._id}`}
-                            className="group block flex flex-col h-full"
+                            className={`group block flex flex-col h-full ${isOutOfStock ? "pointer-events-auto" : ""}`}
                         >
-                            <div className="relative aspect-square rounded-[1.5rem] overflow-hidden border border-primary/10 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
+                            <div className={`relative aspect-square rounded-[1.5rem] overflow-hidden border mb-4 transition-transform duration-300 ${
+                                isOutOfStock
+                                    ? "border-gray-200 opacity-60"
+                                    : "border-primary/10 group-hover:-translate-y-1"
+                            }`}>
                                 <img
                                     src={
                                         product.images?.[0] ||
@@ -63,30 +70,57 @@ export default function Shop() {
                                         "https://placehold.co/1000x1000?text=Product+Image"
                                     }
                                     alt={product.name}
-                                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                    className={`absolute inset-0 h-full w-full object-cover transition-transform duration-700 ${
+                                        isOutOfStock
+                                            ? "grayscale"
+                                            : "group-hover:scale-105"
+                                    }`}
                                     loading="lazy"
                                 />
-                                {product.stock <= INVENTORY_THRESHOLDS.OUT_OF_STOCK && (
-                                    <div className="absolute inset-0 bg-background/40 flex items-center justify-center backdrop-blur-sm">
-                                        <span className="bg-background/90 text-heading px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide">
+                                {isOutOfStock && (
+                                    <div className="absolute inset-0 bg-background/50 flex items-center justify-center backdrop-blur-[2px]">
+                                        <span className="bg-gray-900 text-white px-5 py-2 rounded-full text-sm font-bold tracking-wide uppercase shadow-lg">
                                             Sold Out
+                                        </span>
+                                    </div>
+                                )}
+                                {!isOutOfStock && getDiscountLabel(product) && (
+                                    <div className="absolute left-3 top-3">
+                                        <span className="inline-flex items-center rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-lg shadow-red-600/20">
+                                            {getDiscountLabel(product)}
                                         </span>
                                     </div>
                                 )}
                             </div>
                             <div className="space-y-2 flex-1 flex flex-col">
                                 <div className="flex flex-col gap-1">
-                                    <h3 className="text-lg font-display font-semibold text-heading group-hover:text-primary transition-colors line-clamp-2">
+                                    <h3 className={`text-lg font-display font-semibold line-clamp-2 ${
+                                        isOutOfStock
+                                            ? "text-gray-400"
+                                            : "text-heading group-hover:text-primary transition-colors"
+                                    }`}>
                                         {product.name}
                                     </h3>
-                                    <span className="text-base font-semibold text-heading shrink-0">
-                                        ₹{product.price}
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`text-base font-semibold shrink-0 ${
+                                            isOutOfStock ? "text-gray-400" : "text-heading"
+                                        }`}>
+                                            ₹{getEffectivePrice(product)}
+                                        </span>
+                                        {!isOutOfStock && getDiscountLabel(product) && (
+                                            <span className="text-sm text-subtle line-through">
+                                                ₹{product.price}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
-                                <p className="text-sm text-subtle line-clamp-2 mt-auto leading-relaxed">{product.description}</p>
+                                <p className={`text-sm line-clamp-2 mt-auto leading-relaxed ${
+                                    isOutOfStock ? "text-gray-400" : "text-subtle"
+                                }`}>{product.description}</p>
                             </div>
                         </Link>
-                    ))}
+                    );
+                    })}
             </div>
 
             {!loading && products.length === 0 && (

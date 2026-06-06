@@ -21,7 +21,7 @@ export default function OrderSummary() {
   const total = (effectivePrice * quantity).toFixed(2);
 
   const updateQuantity = (modifier) => {
-    const nextQuantity = Math.max(1, quantity + modifier);
+    const nextQuantity = Math.min(10, Math.max(1, quantity + modifier));
     setProduct({
       ...product,
       quantity: nextQuantity,

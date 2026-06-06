@@ -13,6 +13,7 @@ export default function Register() {
   const navigate = useNavigate();
   const { setUser, setToken } = useAuth();
   const [serverError, setServerError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -21,6 +22,7 @@ export default function Register() {
 
   const onSubmit = async (data) => {
     setServerError(null);
+    setLoading(true);
     try {
       const res = await httpClient.post("/api/auth/register", data);
       const safeUser = {
@@ -36,6 +38,8 @@ export default function Register() {
       navigate("/");
     } catch (err) {
       setServerError(err.response?.data?.message || "Failed to register.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -78,8 +82,8 @@ export default function Register() {
           {serverError && (
             <p className="text-sm text-red-500 text-center">{serverError}</p>
           )}
-          <Button type="submit" className="w-full">
-            Create account
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Creating account..." : "Create account"}
           </Button>
         </form>
 

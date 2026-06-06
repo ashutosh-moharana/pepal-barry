@@ -88,17 +88,21 @@ export default function ProductDetails() {
                 "https://placehold.co/1000x1000?text=Product+Image"
               }
               alt={product.name}
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              className={`absolute inset-0 h-full w-full object-cover transition-transform duration-700 ${
+                Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK
+                  ? "grayscale"
+                  : "group-hover:scale-105"
+              }`}
             />
             {Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK && (
-              <div className="absolute inset-0 bg-background/40 flex items-center justify-center backdrop-blur-sm z-10">
-                <span className="bg-background/90 text-heading px-6 py-2 rounded-full text-lg font-medium shadow-lg">
+              <div className="absolute inset-0 bg-background/50 flex items-center justify-center backdrop-blur-[2px] z-10">
+                <span className="bg-gray-900 text-white px-8 py-3 rounded-full text-lg font-bold tracking-wide uppercase shadow-lg">
                   Sold Out
                 </span>
               </div>
             )}
             
-            {getDiscountLabel(product) && (
+            {getDiscountLabel(product) && Number(product.stock ?? 0) > INVENTORY_THRESHOLDS.OUT_OF_STOCK && (
               <div className="absolute left-6 top-6 z-20">
                 <span className="inline-flex items-center rounded-full bg-red-600 px-4 py-1.5 text-sm font-semibold tracking-wide text-white shadow-lg shadow-red-600/20 backdrop-blur-md">
                   {getDiscountLabel(product)}
@@ -141,66 +145,87 @@ export default function ProductDetails() {
             </div>
 
             {/* Desktop Action Area - Hidden on small mobile */}
-            <div className="hidden sm:flex flex-col sm:flex-row items-stretch sm:items-center gap-6">
-              <div className="flex items-center gap-4 bg-muted/50 rounded-full p-1 border border-primary/10">
-                <button
-                  className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-all active:scale-90 shadow-sm"
-                  onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                  aria-label="Decrease quantity"
-                >
-                  <span className="text-xl font-medium">−</span>
-                </button>
-                <span className="text-xl font-display font-semibold w-6 text-center">{quantity}</span>
-                <button
-                  className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-all active:scale-90 shadow-sm"
-                  onClick={() => setQuantity((prev) => prev + 1)}
-                  aria-label="Increase quantity"
-                >
-                  <span className="text-xl font-medium">+</span>
-                </button>
+            {Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK ? (
+              <div className="hidden sm:block rounded-2xl border border-gray-200 bg-gray-50 p-6 text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center mx-auto">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                  </svg>
+                </div>
+                <p className="text-lg font-semibold text-gray-600">Currently Unavailable</p>
+                <p className="text-sm text-gray-400">This item is out of stock. Check back soon for restocks!</p>
               </div>
+            ) : (
+              <div className="hidden sm:flex flex-col sm:flex-row items-stretch sm:items-center gap-6">
+                <div className="flex items-center gap-4 bg-muted/50 rounded-full p-1 border border-primary/10">
+                  <button
+                    className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-all active:scale-90 shadow-sm"
+                    onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                    aria-label="Decrease quantity"
+                  >
+                    <span className="text-xl font-medium">−</span>
+                  </button>
+                  <span className="text-xl font-display font-semibold w-6 text-center">{quantity}</span>
+                  <button
+                    className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-all active:scale-90 shadow-sm"
+                    onClick={() => setQuantity((prev) => Math.min(10, prev + 1))}
+                    aria-label="Increase quantity"
+                  >
+                    <span className="text-xl font-medium">+</span>
+                  </button>
+                </div>
 
-              <div className="pt-0">
-                <Button
-                  className="px-8 py-3 text-lg"
-                  onClick={handleBuyNow}
-                  disabled={Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK}
-                >
-                  {Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK ? "Sold Out" : "Buy now"}
-                </Button>
+                <div className="pt-0">
+                  <Button
+                    className="px-8 py-3 text-lg"
+                    onClick={handleBuyNow}
+                  >
+                    Buy now
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Mobile Sticky Action Bar */}
-      <div className="fixed sm:hidden bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-md border-t border-primary/10 flex items-center justify-between gap-4 z-40">
-        <div className="flex items-center gap-4 bg-muted/50 rounded-full p-1 border border-primary/10">
-          <button
-            className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-all shadow-sm"
-            onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-            aria-label="Decrease quantity"
-          >
-            <span className="text-xl font-medium">−</span>
-          </button>
-          <span className="text-lg font-display font-semibold w-4 text-center">{quantity}</span>
-          <button
-            className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-all shadow-sm"
-            onClick={() => setQuantity((prev) => prev + 1)}
-            aria-label="Increase quantity"
-          >
-            <span className="text-xl font-medium">+</span>
-          </button>
+      {Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK ? (
+        <div className="fixed sm:hidden bottom-0 left-0 right-0 p-4 bg-gray-50/95 backdrop-blur-md border-t border-gray-200 flex items-center justify-center gap-3 z-40">
+          <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center shrink-0">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+            </svg>
+          </div>
+          <span className="text-base font-semibold text-gray-500">Currently Unavailable</span>
         </div>
-        <Button
-          className="flex-1 py-3.5 text-lg shadow-lg"
-          onClick={handleBuyNow}
-          disabled={Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK}
-        >
-          {Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK ? "Sold Out" : "Buy now"}
-        </Button>
-      </div>
+      ) : (
+        <div className="fixed sm:hidden bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-md border-t border-primary/10 flex items-center justify-between gap-4 z-40">
+          <div className="flex items-center gap-4 bg-muted/50 rounded-full p-1 border border-primary/10">
+            <button
+              className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-all shadow-sm"
+              onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+              aria-label="Decrease quantity"
+            >
+              <span className="text-xl font-medium">−</span>
+            </button>
+            <span className="text-lg font-display font-semibold w-4 text-center">{quantity}</span>
+            <button
+              className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-all shadow-sm"
+              onClick={() => setQuantity((prev) => Math.min(10, prev + 1))}
+              aria-label="Increase quantity"
+            >
+              <span className="text-xl font-medium">+</span>
+            </button>
+          </div>
+          <Button
+            className="flex-1 py-3.5 text-lg shadow-lg"
+            onClick={handleBuyNow}
+          >
+            Buy now
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
