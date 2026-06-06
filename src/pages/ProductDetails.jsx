@@ -8,6 +8,7 @@ import BackButton from "../components/common/BackButton";
 import PageLoader from "../components/common/PageLoader";
 import { INVENTORY_THRESHOLDS } from "../utils/constants";
 import { useSEO } from "../hooks/useSEO";
+import { getEffectivePrice, getDiscountLabel } from "../utils/pricing";
 
 export default function ProductDetails() {
   const { productId } = useParams();
@@ -90,9 +91,17 @@ export default function ProductDetails() {
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
             {Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK && (
-              <div className="absolute inset-0 bg-background/40 flex items-center justify-center backdrop-blur-sm">
-                <span className="bg-background/90 text-heading px-6 py-2 rounded-full text-lg font-medium">
+              <div className="absolute inset-0 bg-background/40 flex items-center justify-center backdrop-blur-sm z-10">
+                <span className="bg-background/90 text-heading px-6 py-2 rounded-full text-lg font-medium shadow-lg">
                   Sold Out
+                </span>
+              </div>
+            )}
+            
+            {getDiscountLabel(product) && (
+              <div className="absolute left-6 top-6 z-20">
+                <span className="inline-flex items-center rounded-full bg-red-600 px-4 py-1.5 text-sm font-semibold tracking-wide text-white shadow-lg shadow-red-600/20 backdrop-blur-md">
+                  {getDiscountLabel(product)}
                 </span>
               </div>
             )}
@@ -111,10 +120,17 @@ export default function ProductDetails() {
               </p>
             </div>
 
-            <div className="flex items-baseline gap-6">
-              <span className="text-2xl sm:text-3xl md:text-5xl font-display font-semibold text-heading">
-                ₹{product.price}
-              </span>
+            <div className="flex items-baseline gap-4 sm:gap-6">
+              <div className="flex items-baseline gap-3">
+                <span className="text-2xl sm:text-3xl md:text-5xl font-display font-semibold text-heading">
+                  ₹{getEffectivePrice(product)}
+                </span>
+                {getDiscountLabel(product) && (
+                  <span className="text-lg sm:text-2xl font-medium text-subtle line-through">
+                    ₹{product.price}
+                  </span>
+                )}
+              </div>
               <span className="text-sm font-medium text-subtle uppercase tracking-wider">
                 {Number(product.stock ?? 0) <= INVENTORY_THRESHOLDS.OUT_OF_STOCK
                   ? "Out of stock"

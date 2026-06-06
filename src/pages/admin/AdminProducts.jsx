@@ -52,6 +52,8 @@ export default function AdminProducts() {
         formData.append("price", data.price);
         formData.append("stock", data.stock);
         formData.append("category", data.category);
+        if (data.discountPercent) formData.append("discountPercent", data.discountPercent);
+        if (data.discountPrice) formData.append("discountPrice", data.discountPrice);
 
         // Handle images: react-hook-form returns a FileList here
         if (data.images && data.images.length > 0) {
@@ -108,6 +110,8 @@ export default function AdminProducts() {
                 price: product.price,
                 stock: product.stock,
                 category: product.category || "General",
+                discountPercent: product.discountPercent || 0,
+                discountPrice: product.discountPrice || 0,
                 images: null, // Reset file input
             });
         } else {
@@ -118,6 +122,8 @@ export default function AdminProducts() {
                 price: "",
                 stock: "",
                 category: "General",
+                discountPercent: 0,
+                discountPrice: 0,
                 images: null,
             });
         }
@@ -179,7 +185,14 @@ export default function AdminProducts() {
                                     />
                                 </td>
                                 <td className="p-4 font-medium text-heading">{product.name}</td>
-                                <td className="p-4 text-subtle">₹{product.price}</td>
+                                <td className="p-4 text-subtle">
+                                    <div>₹{product.price}</div>
+                                    {product.discountPrice > 0 ? (
+                                        <div className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md inline-block mt-1">₹{product.discountPrice} Fixed</div>
+                                    ) : product.discountPercent > 0 ? (
+                                        <div className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md inline-block mt-1">{product.discountPercent}% OFF</div>
+                                    ) : null}
+                                </td>
                                 <td className="p-4 text-subtle">{product.stock}</td>
                                 <td className="p-4">
                                     <div className="flex items-center space-x-2">
@@ -273,6 +286,24 @@ export default function AdminProducts() {
                                     {...register("stock", { required: "Stock is required" })}
                                 />
                             </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <Input
+                                    label="Discount (%)"
+                                    type="number"
+                                    placeholder="0"
+                                    error={errors.discountPercent?.message}
+                                    {...register("discountPercent", { min: { value: 0, message: "Cannot be negative" }, max: { value: 100, message: "Max 100%" } })}
+                                />
+                                <Input
+                                    label="Discount Price (₹)"
+                                    type="number"
+                                    placeholder="0"
+                                    error={errors.discountPrice?.message}
+                                    {...register("discountPrice", { min: { value: 0, message: "Cannot be negative" } })}
+                                />
+                            </div>
+                            <p className="text-xs text-subtle mt-1 mb-3">If both are set, fixed Discount Price is used.</p>
 
                             <Input
                                 label="Category"

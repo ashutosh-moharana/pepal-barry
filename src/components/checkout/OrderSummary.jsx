@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useCheckout } from "../../context/CheckoutContext";
+import { getEffectivePrice } from "../../utils/pricing";
 import Button from "../common/Button";
 
 export default function OrderSummary() {
@@ -15,8 +16,9 @@ export default function OrderSummary() {
   }
 
   const quantity = product.quantity || 1;
-  const price = Number(product.price) || 0;
-  const total = (price * quantity).toFixed(2);
+  const originalPrice = Number(product.price) || 0;
+  const effectivePrice = getEffectivePrice(product);
+  const total = (effectivePrice * quantity).toFixed(2);
 
   const updateQuantity = (modifier) => {
     const nextQuantity = Math.max(1, quantity + modifier);
@@ -42,8 +44,15 @@ export default function OrderSummary() {
           <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-heading leading-tight">{product.name}</h2>
           <p className="text-subtle text-xs sm:text-sm md:text-base line-clamp-2">{product.description}</p>
           <div className="flex flex-row items-center justify-between sm:justify-start gap-4 pt-1 sm:pt-0">
-            <div className="text-lg sm:text-xl md:text-2xl font-semibold text-heading">
-              ₹{price.toFixed(2)}
+            <div className="flex items-baseline gap-2">
+              <span className="text-lg sm:text-xl md:text-2xl font-semibold text-heading">
+                ₹{effectivePrice.toFixed(2)}
+              </span>
+              {effectivePrice < originalPrice && (
+                <span className="text-sm text-subtle line-through">
+                  ₹{originalPrice.toFixed(2)}
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-3 bg-muted/50 rounded-full p-1 border border-primary/10">
               <button
@@ -70,9 +79,15 @@ export default function OrderSummary() {
         <div className="flex justify-between text-subtle">
           <span>Items ({quantity})</span>
           <span>
-            ₹{price.toFixed(2)} × {quantity}
+            ₹{effectivePrice.toFixed(2)} × {quantity}
           </span>
         </div>
+        {effectivePrice < originalPrice && (
+          <div className="flex justify-between text-emerald-600 text-sm">
+            <span>Discount Savings</span>
+            <span>- ₹{((originalPrice - effectivePrice) * quantity).toFixed(2)}</span>
+          </div>
+        )}
         <div className="flex justify-between text-subtle">
           <span>Delivery</span>
           <span className="text-emerald-600">Free</span>

@@ -9,6 +9,7 @@ import {
   verifyRazorpayPayment,
 } from "../../services/orders";
 import { loadRazorpayScript } from "../../utils/razorpay";
+import { getEffectivePrice } from "../../utils/pricing";
 
 export default function Payment() {
   const navigate = useNavigate();
@@ -33,7 +34,9 @@ export default function Payment() {
   }
 
   const quantity = product.quantity || 1;
-  const total = Number(product.price) * Number(quantity);
+  const originalPrice = Number(product.price) || 0;
+  const effectivePrice = getEffectivePrice(product);
+  const total = effectivePrice * Number(quantity);
 
   const payload = {
     products: [
@@ -212,9 +215,15 @@ export default function Payment() {
         <div className="flex justify-between text-subtle">
           <span>Items ({quantity})</span>
           <span>
-            ₹{product.price} × {quantity}
+            ₹{effectivePrice.toFixed(2)} × {quantity}
           </span>
         </div>
+        {effectivePrice < originalPrice && (
+          <div className="flex justify-between text-emerald-600 text-sm">
+            <span>Discount Savings</span>
+            <span>- ₹{((originalPrice - effectivePrice) * quantity).toFixed(2)}</span>
+          </div>
+        )}
         <div className="flex justify-between text-subtle">
           <span>Delivery</span>
           <span className="text-primary">Free</span>

@@ -96,6 +96,7 @@ export default function OrderHistory() {
               {order.products?.map((item) => (
                 <li key={item._id}>
                   {item.productId?.name || "Product"} × {item.quantity}
+                  {item.priceAtPurchase ? ` (₹${item.priceAtPurchase} each)` : ""}
                 </li>
               ))}
             </ul>

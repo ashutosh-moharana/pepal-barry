@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { getProducts } from "../services/products";
 import SectionHeading from "./common/SectionHeading";
 import ProductSkeleton from "./common/ProductSkeleton";
+import { getEffectivePrice, getDiscountLabel } from "../utils/pricing";
 
 export default function Product() {
   const [products, setProducts] = useState([]);
@@ -86,6 +87,12 @@ export default function Product() {
                   JAR #{String(index + 1).padStart(2, "0")}
                 </div>
 
+                {getDiscountLabel(product) && (
+                  <div className="absolute left-5 bottom-5 inline-flex items-center rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md shadow-lg shadow-red-600/20">
+                    {getDiscountLabel(product)}
+                  </div>
+                )}
+
                 {Number(product.stock ?? 0) <= 0 && (
                   <div className="absolute right-5 top-5 inline-flex items-center rounded-full bg-background/90 px-4 py-1.5 text-xs font-semibold text-heading backdrop-blur-md">
                     Sold out
@@ -97,9 +104,16 @@ export default function Product() {
                 <h3 className="text-xl md:text-2xl font-display font-semibold text-heading leading-snug line-clamp-2">
                   {product.name}
                 </h3>
-                <p className="shrink-0 text-lg md:text-xl font-semibold text-heading">
-                  ₹{product.price}
-                </p>
+                <div className="flex items-center gap-3">
+                  <p className="shrink-0 text-lg md:text-xl font-semibold text-heading">
+                    ₹{getEffectivePrice(product)}
+                  </p>
+                  {getDiscountLabel(product) && (
+                    <p className="text-base font-medium text-subtle line-through">
+                      ₹{product.price}
+                    </p>
+                  )}
+                </div>
               </div>
             </Link>
           ))}

@@ -163,7 +163,7 @@ export default function AdminOrders() {
                                     <span className="text-heading">
                                         {item.productId?.name || "Unknown Product"} <span className="text-subtle">x{item.quantity}</span>
                                     </span>
-                                    <span>₹{(item.productId?.price || item.priceAtPurchase || 0) * item.quantity}</span>
+                                    <span>₹{(item.priceAtPurchase || item.productId?.price || 0) * item.quantity}</span>
                                 </div>
                             ))}
                         </div>
